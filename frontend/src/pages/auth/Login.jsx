@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
-import { login, clearError } from '../../../redux/slices/authSlice'
+import { login, clearError } from '../../redux/slices/authSlice'
 
 const loginSchema = yup.object({
   email: yup

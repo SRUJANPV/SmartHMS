@@ -30,7 +30,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 
-import BillForm from '../../components/billing/BillForm'
+import BillForm from './BillForm'
 import { getBills, getBillingStats } from '../../redux/slices/billingSlice'
 
 const TabPanel = ({ children, value, index, ...other }) => (
