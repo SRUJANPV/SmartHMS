@@ -18,7 +18,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
-import { register, clearError } from '../../../redux/slices/authSlice'
+import { register, clearError } from '../../redux/slices/authSlice'
 
 const registerSchema = yup.object({
   firstName: yup

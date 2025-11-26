@@ -28,7 +28,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
 
-import PatientForm from '../../components/patients/PatientForm'
+import PatientForm from './PatientForm'
 import { getPatients, deletePatient } from '../../redux/slices/patientsSlice'
 
 const Patients = () => {

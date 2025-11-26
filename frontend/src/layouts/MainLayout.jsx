@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import { logout } from '../redux/slices/authSlice'
-import SidebarItems from '../components/layout/SidebarItems'
+import SidebarItems from '../components/SidebarItems'
 
 const drawerWidth = 240
 

@@ -27,8 +27,8 @@ import { DataGrid } from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSnackbar } from 'notistack'
 
-import InventoryForm from '../../components/inventory/InventoryForm'
-import StockUpdateForm from '../../components/inventory/StockUpdateForm'
+import InventoryForm from './InventoryForm'
+import StockUpdateForm from './StockUpdateForm'
 import { getInventory, getInventoryStats, getLowStockItems } from '../../redux/slices/inventorySlice'
 
 const Inventory = () => {
