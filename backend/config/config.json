@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "root",
+    "password": "Srujan@2005",
+    "database": "smarthms",
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "Srujan@2005",
+    "database": "smarthms_test",
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "Srujan@2005",
+    "database": "smarthms_prod",
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql"
+  }
+}
