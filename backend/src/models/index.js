@@ -1,4 +1,5 @@
-const { sequelize } = require('../config/database');
+const { Sequelize } = require('sequelize');
+const { sequelize, testConnection } = require('../config/database');
 const User = require('./User');
 const Role = require('./Role');
 const Patient = require('./Patient');
@@ -67,5 +68,7 @@ module.exports = {
   Notification,
   ActivityLog,
   RefreshToken,
-  defineAssociations
+  defineAssociations,
+  testConnection,
+  Sequelize
 };
