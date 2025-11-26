@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/userRepository');
 const refreshTokenRepository = require('../repositories/refreshTokenRepository');
+const { Role } = require('../models');
 const { generatePatientId } = require('../utils/helpers');
 
 class AuthService {
@@ -13,8 +14,29 @@ class AuthService {
         throw new Error('User with this email already exists');
       }
 
+      // If role is a string (role name), find the role ID
+      let roleId = userData.roleId;
+      if (!roleId && userData.role) {
+        const role = await Role.findOne({ where: { name: userData.role } });
+        if (!role) {
+          throw new Error(`Role '${userData.role}' does not exist`);
+        }
+        roleId = role.id;
+      }
+
+      if (!roleId) {
+        throw new Error('Role is required');
+      }
+
+      // Prepare user data without the role field
+      const createData = {
+        ...userData,
+        roleId,
+        role: undefined // Remove the role field
+      };
+
       // Create user
-      const user = await userRepository.create(userData);
+      const user = await userRepository.create(createData);
 
       // Generate tokens
       const tokens = this.generateTokens(user.id);
@@ -26,11 +48,10 @@ class AuthService {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
       });
 
-      // Remove password from response
-      user.password = undefined;
+      const userWithRole = await userRepository.findByIdWithRole(user.id);
 
       return {
-        user,
+        user: userWithRole,
         ...tokens
       };
     } catch (error) {

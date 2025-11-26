@@ -18,7 +18,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
-import { register, clearError } from '../../redux/slices/authSlice'
+import { register as registerAction, clearError } from '../../redux/slices/authSlice'
 
 const registerSchema = yup.object({
   firstName: yup
@@ -59,10 +59,22 @@ const Register = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    watch
   } = useForm({
-    resolver: yupResolver(registerSchema)
+    resolver: yupResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      role: 'Patient',
+      password: '',
+      confirmPassword: ''
+    }
   })
+
+  const roleValue = watch('role')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -77,8 +89,22 @@ const Register = () => {
   }, [dispatch])
 
   const onSubmit = (data) => {
-    const { confirmPassword, ...registerData } = data
-    dispatch(register(registerData))
+    try {
+      console.log('Form data being submitted:', data)
+      const { confirmPassword } = data
+      const finalData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        password: data.password
+      }
+      console.log('Submitting registration data:', finalData)
+      dispatch(registerAction(finalData))
+    } catch (error) {
+      console.error('Error in onSubmit:', error)
+    }
   }
 
   return (
@@ -161,10 +187,10 @@ const Register = () => {
                   fullWidth
                   label="Role"
                   {...register('role')}
+                  value={roleValue || 'Patient'}
                   error={!!errors.role}
                   helperText={errors.role?.message}
                   disabled={isLoading}
-                  defaultValue=""
                 >
                   <MenuItem value="Patient">Patient</MenuItem>
                   <MenuItem value="Doctor">Doctor</MenuItem>

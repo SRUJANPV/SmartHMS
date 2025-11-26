@@ -20,11 +20,14 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
+      console.log('Register thunk - userData:', userData)
       const response = await authService.register(userData)
+      console.log('Register thunk - response:', response)
       return response.data
     } catch (error) {
+      console.error('Register thunk - error:', error)
       return rejectWithValue(
-        error.response?.data?.message || 'Registration failed'
+        error.response?.data?.message || error.message || 'Registration failed'
       )
     }
   }

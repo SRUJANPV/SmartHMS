@@ -62,13 +62,15 @@ const AdminDashboard = () => {
   ]
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Admin Dashboard
-      </Typography>
-      <Typography variant="body1" color="text.secondary" gutterBottom>
-        Welcome to SmartCare HMS Administration Panel
-      </Typography>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#1a237e' }}>
+          Admin Dashboard
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Welcome to SmartCare HMS Administration Panel
+        </Typography>
+      </Box>
 
       {/* Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -82,8 +84,8 @@ const AdminDashboard = () => {
       <Grid container spacing={3}>
         {/* Recent Activity */}
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
               Recent Activity
             </Typography>
             <RecentActivity />
@@ -92,34 +94,34 @@ const AdminDashboard = () => {
 
         {/* System Status */}
         <Grid item xs={12} md={4}>
-          <Card>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                 System Status
               </Typography>
               
-              <Box sx={{ mb: 2 }}>
+              <Box sx={{ mb: 2.5 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="body2">Database</Typography>
-                  <Typography variant="body2">100%</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>Database</Typography>
+                  <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600 }}>100%</Typography>
                 </Box>
-                <LinearProgress variant="determinate" value={100} color="success" />
+                <LinearProgress variant="determinate" value={100} color="success" sx={{ height: 8, borderRadius: 4 }} />
+              </Box>
+
+              <Box sx={{ mb: 2.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>API Services</Typography>
+                  <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600 }}>100%</Typography>
+                </Box>
+                <LinearProgress variant="determinate" value={100} color="success" sx={{ height: 8, borderRadius: 4 }} />
               </Box>
 
               <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="body2">API Services</Typography>
-                  <Typography variant="body2">100%</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>Storage</Typography>
+                  <Typography variant="body2" sx={{ color: 'warning.main', fontWeight: 600 }}>65%</Typography>
                 </Box>
-                <LinearProgress variant="determinate" value={100} color="success" />
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="body2">Storage</Typography>
-                  <Typography variant="body2">65%</Typography>
-                </Box>
-                <LinearProgress variant="determinate" value={65} color="warning" />
+                <LinearProgress variant="determinate" value={65} color="warning" sx={{ height: 8, borderRadius: 4 }} />
               </Box>
             </CardContent>
           </Card>
