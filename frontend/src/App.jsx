@@ -117,25 +117,39 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 }
 
 // Role-based Route Component
-const RoleBasedRoute = ({ children }) => {
-  const { user } = useAuth()
-  
-  if (!user) return <Navigate to="/login" replace />
-  
+const ConditionalDashboard = () => {
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to="/login" replace />;
+
   switch (user.role?.name) {
     case 'Admin':
-      return <AdminDashboard />
+      return <AdminDashboard />;
     case 'Doctor':
-      return <DoctorDashboard />
+      return <DoctorDashboard />;
     case 'Nurse':
     case 'Staff':
-      return <StaffDashboard />
+      return <StaffDashboard />;
     case 'Patient':
-      return <PatientDashboard />
+      return <PatientDashboard />;
     default:
-      return <Navigate to="/login" replace />
+      return <Navigate to="/login" replace />;
   }
-}
+};
+
+const RoleBasedRoute = ({ children, allowedRoles }) => {
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user || (allowedRoles && !allowedRoles.includes(user.role?.name))) {
+    return <Navigate to="/unauthorized" replace />; // Or a dedicated unauthorized page
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -167,7 +181,7 @@ function App() {
               <Route path="/" element={
                 <ProtectedRoute>
                   <MainLayout>
-                    <RoleBasedRoute />
+                    <ConditionalDashboard />
                   </MainLayout>
                 </ProtectedRoute>
               } />
@@ -175,11 +189,12 @@ function App() {
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <MainLayout>
-                    <RoleBasedRoute />
+                    <ConditionalDashboard />
                   </MainLayout>
                 </ProtectedRoute>
               } />
 
+              {/* Admin & Staff Routes */}
               {/* Admin & Staff Routes */}
               <Route path="/patients" element={
                 <ProtectedRoute requiredRole={['Admin', 'Doctor', 'Staff']}>
@@ -198,7 +213,7 @@ function App() {
               } />
 
               <Route path="/appointments" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole={['Admin', 'Doctor', 'Staff', 'Patient']}>
                   <MainLayout>
                     <Appointments />
                   </MainLayout>

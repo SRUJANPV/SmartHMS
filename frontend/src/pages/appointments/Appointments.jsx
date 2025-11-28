@@ -282,23 +282,10 @@ const Appointments = () => {
       </TabPanel>
 
       {/* Appointment Form Dialog */}
-      <Dialog
+      <AppointmentForm
         open={openForm}
         onClose={() => setOpenForm(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Schedule New Appointment</DialogTitle>
-        <DialogContent>
-          <AppointmentForm
-            onSuccess={() => {
-              setOpenForm(false)
-              enqueueSnackbar('Appointment scheduled successfully', { variant: 'success' })
-            }}
-            onCancel={() => setOpenForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      />
     </Box>
   )
 }

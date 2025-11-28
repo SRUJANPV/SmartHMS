@@ -1,57 +1,12 @@
-// Mock user database
-const mockUsers = [
-  {
-    id: '1',
-    email: 'admin@example.com',
-    password: 'Admin@123',
-    firstName: 'Admin',
-    lastName: 'User',
-    phone: '+1234567890',
-    role: { id: 1, name: 'Admin' }
-  },
-  {
-    id: '2',
-    email: 'doctor@example.com',
-    password: 'Doctor@123',
-    firstName: 'John',
-    lastName: 'Doe',
-    phone: '+1234567891',
-    role: { id: 2, name: 'Doctor' }
-  },
-  {
-    id: '3',
-    email: 'patient@example.com',
-    password: 'Patient@123',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    phone: '+1234567892',
-    role: { id: 3, name: 'Patient' }
-  }
-]
+import api from './api'
 
 const authService = {
   login: async (email, password) => {
     try {
       console.log('AuthService.login - email:', email)
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Mock login
-      const user = mockUsers.find(u => u.email === email && u.password === password)
-      if (!user) {
-        throw new Error('Invalid email or password')
-      }
-      
-      const token = 'mock_token_' + Date.now()
-      const refreshToken = 'mock_refresh_' + Date.now()
-      
-      return {
-        data: {
-          user: { ...user, password: undefined },
-          token,
-          refreshToken
-        }
-      }
+      const response = await api.post('/auth/login', { email, password })
+      console.log('AuthService.login - response:', response)
+      return response
     } catch (error) {
       console.error('AuthService.login - error:', error)
       throw error
@@ -61,34 +16,7 @@ const authService = {
   register: async (userData) => {
     try {
       console.log('AuthService.register - sending data:', userData)
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Check if user already exists
-      const userExists = mockUsers.find(u => u.email === userData.email)
-      if (userExists) {
-        throw new Error('User with this email already exists')
-      }
-      
-      // Create new user
-      const newUser = {
-        id: 'user_' + Date.now(),
-        ...userData,
-        role: { id: 3, name: userData.role || 'Patient' }
-      }
-      
-      mockUsers.push(newUser)
-      
-      const token = 'mock_token_' + Date.now()
-      const refreshToken = 'mock_refresh_' + Date.now()
-      
-      const response = {
-        data: {
-          user: { ...newUser, password: undefined },
-          token,
-          refreshToken
-        }
-      }
+      const response = await api.post('/auth/register', userData)
       console.log('AuthService.register - response:', response)
       return response
     } catch (error) {
@@ -99,19 +27,8 @@ const authService = {
 
   getMe: async () => {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No token found')
-      }
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      // Find user by token (in mock, we'll just return the first user)
-      const user = mockUsers[0]
-      return {
-        data: { ...user, password: undefined }
-      }
+      const response = await api.get('/auth/me')
+      return response
     } catch (error) {
       console.error('AuthService.getMe - error:', error)
       throw error
@@ -119,17 +36,24 @@ const authService = {
   },
 
   logout: async () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
+    try {
+      const refreshToken = localStorage.getItem('refreshToken')
+      if (refreshToken) {
+        await api.post('/auth/logout', { refreshToken })
+      }
+    } catch (error) {
+      console.error('AuthService.logout - error:', error)
+    } finally {
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+    }
   },
 
   changePassword: async (passwordData) => {
     try {
       console.log('AuthService.changePassword - changing password')
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return {
-        data: { success: true }
-      }
+      const response = await api.post('/auth/change-password', passwordData)
+      return response
     } catch (error) {
       console.error('AuthService.changePassword - error:', error)
       throw error
@@ -138,16 +62,8 @@ const authService = {
 
   refreshToken: async (refreshToken) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
-      const token = 'mock_token_' + Date.now()
-      const newRefreshToken = 'mock_refresh_' + Date.now()
-      
-      return {
-        data: {
-          token,
-          refreshToken: newRefreshToken
-        }
-      }
+      const response = await api.post('/auth/refresh-token', { refreshToken })
+      return response
     } catch (error) {
       console.error('AuthService.refreshToken - error:', error)
       throw error
