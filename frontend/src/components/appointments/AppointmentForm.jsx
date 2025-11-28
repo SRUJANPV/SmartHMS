@@ -28,8 +28,14 @@ const appointmentSchema = yup.object({
 
 const AppointmentForm = ({ open, onClose, appointment = null }) => {
   const dispatch = useDispatch()
-  const { patients } = useSelector((state) => state.patients)
-  const { doctors } = useSelector((state) => state.doctors)
+  const { patients = [] } = useSelector((state) => state.patients) || {}
+  
+  // Mock doctors list since doctors slice doesn't exist yet
+  const doctors = [
+    { id: 1, firstName: 'John', lastName: 'Smith' },
+    { id: 2, firstName: 'Sarah', lastName: 'Johnson' },
+    { id: 3, firstName: 'Michael', lastName: 'Brown' }
+  ]
 
   const {
     control,

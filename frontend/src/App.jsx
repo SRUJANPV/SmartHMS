@@ -44,14 +44,24 @@ const theme = createTheme({
       dark: '#9a0036'
     },
     background: {
-      default: '#f5f5f5',
+      default: '#f8f9fa',
       paper: '#ffffff'
+    },
+    success: {
+      main: '#2e7d32'
+    },
+    warning: {
+      main: '#ed6c02'
+    },
+    error: {
+      main: '#d32f2f'
     }
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h4: {
-      fontWeight: 600
+      fontWeight: 600,
+      fontSize: '2rem'
     },
     h6: {
       fontWeight: 600
@@ -59,6 +69,35 @@ const theme = createTheme({
   },
   shape: {
     borderRadius: 8
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.15)'
+          }
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 500,
+          padding: '8px 16px'
+        }
+      }
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
+        }
+      }
+    }
   }
 })
 
@@ -78,25 +117,39 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 }
 
 // Role-based Route Component
-const RoleBasedRoute = ({ children }) => {
-  const { user } = useAuth()
-  
-  if (!user) return <Navigate to="/login" replace />
-  
+const ConditionalDashboard = () => {
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to="/login" replace />;
+
   switch (user.role?.name) {
     case 'Admin':
-      return <AdminDashboard />
+      return <AdminDashboard />;
     case 'Doctor':
-      return <DoctorDashboard />
+      return <DoctorDashboard />;
     case 'Nurse':
     case 'Staff':
-      return <StaffDashboard />
+      return <StaffDashboard />;
     case 'Patient':
-      return <PatientDashboard />
+      return <PatientDashboard />;
     default:
-      return <Navigate to="/login" replace />
+      return <Navigate to="/login" replace />;
   }
-}
+};
+
+const RoleBasedRoute = ({ children, allowedRoles }) => {
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user || (allowedRoles && !allowedRoles.includes(user.role?.name))) {
+    return <Navigate to="/unauthorized" replace />; // Or a dedicated unauthorized page
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -128,7 +181,7 @@ function App() {
               <Route path="/" element={
                 <ProtectedRoute>
                   <MainLayout>
-                    <RoleBasedRoute />
+                    <ConditionalDashboard />
                   </MainLayout>
                 </ProtectedRoute>
               } />
@@ -136,11 +189,12 @@ function App() {
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <MainLayout>
-                    <RoleBasedRoute />
+                    <ConditionalDashboard />
                   </MainLayout>
                 </ProtectedRoute>
               } />
 
+              {/* Admin & Staff Routes */}
               {/* Admin & Staff Routes */}
               <Route path="/patients" element={
                 <ProtectedRoute requiredRole={['Admin', 'Doctor', 'Staff']}>
@@ -159,7 +213,7 @@ function App() {
               } />
 
               <Route path="/appointments" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole={['Admin', 'Doctor', 'Staff', 'Patient']}>
                   <MainLayout>
                     <Appointments />
                   </MainLayout>

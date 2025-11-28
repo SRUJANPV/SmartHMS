@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom'
 import { logout } from '../redux/slices/authSlice'
 import SidebarItems from '../components/SidebarItems'
 
-const drawerWidth = 240
+const drawerWidth = 280
 
 const MainLayout = ({ children }) => {
   const theme = useTheme()
