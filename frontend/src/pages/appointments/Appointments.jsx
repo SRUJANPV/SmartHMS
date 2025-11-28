@@ -46,7 +46,7 @@ const Appointments = () => {
   const dispatch = useDispatch()
   const { enqueueSnackbar } = useSnackbar()
   
-  const { appointments, stats, isLoading } = useSelector((state) => state.appointments)
+  const { appointments = [], stats = {}, isLoading = false } = useSelector((state) => state.appointments || {})
   
   const [tabValue, setTabValue] = useState(0)
   const [viewMode, setViewMode] = useState('calendar')

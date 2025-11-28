@@ -20,9 +20,9 @@ import RecentActivity from '../../components/dashboard/RecentActivity'
 
 const StaffDashboard = () => {
   const { user } = useSelector((state) => state.auth)
-  const { stats: patientStats } = useSelector((state) => state.patients)
-  const { stats: appointmentStats } = useSelector((state) => state.appointments)
-  const { stats: billingStats } = useSelector((state) => state.billing)
+  const { stats: patientStats = {} } = useSelector((state) => state.patients || {})
+  const { stats: appointmentStats = {} } = useSelector((state) => state.appointments || {})
+  const { stats: billingStats = {} } = useSelector((state) => state.billing || {})
 
   useEffect(() => {
     // Dispatch actions to fetch staff data

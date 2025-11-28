@@ -26,11 +26,11 @@ import { useNavigate } from 'react-router-dom'
 import { logout } from '../redux/slices/authSlice'
 import SidebarItems from '../components/SidebarItems'
 
-const drawerWidth = 280
+const drawerWidth = 260
 
 const MainLayout = ({ children }) => {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
   const dispatch = useDispatch()
   const navigate = useNavigate()
   
@@ -57,17 +57,41 @@ const MainLayout = ({ children }) => {
   }
 
   const drawer = (
-    <div>
-      <Toolbar sx={{ backgroundColor: theme.palette.primary.main }}>
-        <Typography variant="h6" noWrap component="div" sx={{ color: 'white' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff' }}>
+      <Box 
+        sx={{ 
+          p: 3, 
+          background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 80
+        }}
+      >
+        <Typography 
+          variant="h5" 
+          component="div" 
+          sx={{ 
+            fontWeight: 700,
+            letterSpacing: '0.5px',
+            textAlign: 'center'
+          }}
+        >
           SmartCare HMS
         </Typography>
-      </Toolbar>
+      </Box>
       <Divider />
-      <List>
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', py: 2 }}>
         <SidebarItems />
-      </List>
-    </div>
+      </Box>
+      <Divider />
+      <Box sx={{ p: 2, backgroundColor: 'grey.50' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
+          v1.0.0 © 2025 SmartCare
+        </Typography>
+      </Box>
+    </Box>
   )
 
   return (
@@ -75,37 +99,66 @@ const MainLayout = ({ children }) => {
       {/* App Bar */}
       <AppBar
         position="fixed"
+        elevation={0}
         sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` }
+          width: { lg: `calc(100% - ${drawerWidth}px)` },
+          ml: { lg: `${drawerWidth}px` },
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid',
+          borderColor: 'divider'
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ minHeight: { xs: 64, sm: 70 }, px: { xs: 2, sm: 3 } }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            sx={{ mr: 2, display: { lg: 'none' } }}
+            disableRipple
           >
             <MenuIcon />
           </IconButton>
           
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Welcome, {user?.firstName} {user?.lastName}
-          </Typography>
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" sx={{ color: 'text.primary', fontWeight: 600 }}>
+              Welcome back, {user?.firstName}!
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {user?.role?.name} Dashboard
+            </Typography>
+          </Box>
 
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="account of current user"
-            aria-controls="primary-search-account-menu"
-            aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
+              <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                {user?.firstName} {user?.lastName}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {user?.email}
+              </Typography>
+            </Box>
+            <IconButton
+              onClick={handleProfileMenuOpen}
+              disableRipple
+              sx={{ 
+                p: 0.5,
+                '&:hover': { backgroundColor: 'action.hover' }
+              }}
+            >
+              <Avatar 
+                sx={{ 
+                  width: 40, 
+                  height: 40, 
+                  bgcolor: 'primary.main',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                {user?.firstName?.[0]}{user?.lastName?.[0]}
+              </Avatar>
+            </IconButton>
+          </Box>
 
           <Menu
             anchorEl={anchorEl}
@@ -152,10 +205,12 @@ const MainLayout = ({ children }) => {
             keepMounted: true
           }}
           sx={{
-            display: { xs: 'block', md: 'none' },
+            display: { xs: 'block', lg: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: drawerWidth
+              width: drawerWidth,
+              borderRight: 'none',
+              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)'
             }
           }}
         >
@@ -164,10 +219,13 @@ const MainLayout = ({ children }) => {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', md: 'block' },
+            display: { xs: 'none', lg: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: drawerWidth
+              width: drawerWidth,
+              borderRight: '1px solid',
+              borderColor: 'divider',
+              boxShadow: 'none'
             }
           }}
           open
@@ -181,12 +239,17 @@ const MainLayout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` }
+          p: { xs: 2, sm: 3, lg: 4 },
+          width: { lg: `calc(100% - ${drawerWidth}px)` },
+          minHeight: '100vh',
+          backgroundColor: 'background.default',
+          transition: 'all 0.3s ease'
         }}
       >
-        <Toolbar />
-        {children}
+        <Toolbar sx={{ minHeight: { xs: 64, sm: 70 } }} />
+        <Box sx={{ maxWidth: '1600px', mx: 'auto' }}>
+          {children}
+        </Box>
       </Box>
     </Box>
   )

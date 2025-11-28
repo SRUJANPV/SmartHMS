@@ -49,7 +49,7 @@ const Billing = () => {
   const dispatch = useDispatch()
   const { enqueueSnackbar } = useSnackbar()
   
-  const { bills, stats, isLoading } = useSelector((state) => state.billing)
+  const { bills = [], stats = {}, isLoading = false } = useSelector((state) => state.billing || {})
   
   const [tabValue, setTabValue] = useState(0)
   const [openForm, setOpenForm] = useState(false)
@@ -188,64 +188,91 @@ const Billing = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">
-          Billing & Invoices
-        </Typography>
+      <Box 
+        sx={{ 
+          mb: 4,
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 2
+        }}
+      >
+        <Box>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 700,
+              color: 'text.primary',
+              mb: 0.5
+            }}
+          >
+            Billing & Invoices
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage bills, invoices and payments
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleCreateBill}
+          size="large"
+          sx={{ 
+            minWidth: { sm: 160 },
+            height: 48,
+            boxShadow: '0px 4px 12px rgba(25, 118, 210, 0.3)'
+          }}
         >
           Create Bill
         </Button>
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={{ xs: 2, sm: 3, lg: 4 }} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+          <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography color="textSecondary" gutterBottom sx={{ fontSize: '0.875rem' }}>
                 Total Revenue
               </Typography>
-              <Typography variant="h4" component="div">
+              <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
                 ${stats?.totalRevenue || '0.00'}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+          <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography color="textSecondary" gutterBottom sx={{ fontSize: '0.875rem' }}>
                 Pending Bills
               </Typography>
-              <Typography variant="h4" component="div">
+              <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: 'warning.main' }}>
                 {stats?.pendingBills || 0}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+          <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography color="textSecondary" gutterBottom sx={{ fontSize: '0.875rem' }}>
                 Paid This Month
               </Typography>
-              <Typography variant="h4" component="div">
+              <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: 'success.main' }}>
                 ${stats?.monthlyRevenue || '0.00'}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+          <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography color="textSecondary" gutterBottom sx={{ fontSize: '0.875rem' }}>
                 Overdue
               </Typography>
-              <Typography variant="h4" component="div">
+              <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: 'error.main' }}>
                 {stats?.overdueBills || 0}
               </Typography>
             </CardContent>
@@ -254,8 +281,17 @@ const Billing = () => {
       </Grid>
 
       {/* Tabs and Filters */}
-      <Paper sx={{ mb: 2 }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Paper 
+        elevation={0}
+        sx={{ 
+          mb: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 3,
+          overflow: 'hidden'
+        }}
+      >
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="All Bills" />
             <Tab label="Pending" />
@@ -264,7 +300,7 @@ const Billing = () => {
           </Tabs>
         </Box>
 
-        <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField
             select
             label="Status Filter"
@@ -285,14 +321,23 @@ const Billing = () => {
           <TextField
             label="Search Bills"
             size="small"
-            sx={{ minWidth: 200 }}
+            sx={{ minWidth: 200, flex: 1 }}
             placeholder="Search by patient or bill number..."
           />
         </Box>
       </Paper>
 
       {/* Bills Data Grid */}
-      <Paper sx={{ width: '100%' }}>
+      <Paper 
+        elevation={0}
+        sx={{ 
+          width: '100%',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 3,
+          overflow: 'hidden'
+        }}
+      >
         <DataGrid
           rows={filteredBills}
           columns={columns}

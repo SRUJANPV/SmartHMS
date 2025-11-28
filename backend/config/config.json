@@ -1,26 +1,32 @@
 {
   "development": {
-    "username": "root",
-    "password": "Srujan@2005",
-    "database": "smarthms",
-    "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "ssl": {
+        "minVersion": "TLSv1.2",
+        "rejectUnauthorized": true
+      }
+    }
   },
   "test": {
-    "username": "root",
-    "password": "Srujan@2005",
-    "database": "smarthms_test",
-    "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "ssl": {
+        "minVersion": "TLSv1.2",
+        "rejectUnauthorized": true
+      }
+    }
   },
   "production": {
-    "username": "root",
-    "password": "Srujan@2005",
-    "database": "smarthms_prod",
-    "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "ssl": {
+        "minVersion": "TLSv1.2",
+        "rejectUnauthorized": true
+      }
+    }
   }
 }

@@ -2,37 +2,18 @@ import api from './api'
 
 const authService = {
   login: async (email, password) => {
-    try {
-      console.log('AuthService.login - email:', email)
-      const response = await api.post('/auth/login', { email, password })
-      console.log('AuthService.login - response:', response)
-      return response
-    } catch (error) {
-      console.error('AuthService.login - error:', error)
-      throw error
-    }
+    const response = await api.post('/auth/login', { email, password })
+    return response.data.data // Backend returns { success, message, data }
   },
 
   register: async (userData) => {
-    try {
-      console.log('AuthService.register - sending data:', userData)
-      const response = await api.post('/auth/register', userData)
-      console.log('AuthService.register - response:', response)
-      return response
-    } catch (error) {
-      console.error('AuthService.register - error:', error)
-      throw error
-    }
+    const response = await api.post('/auth/register', userData)
+    return response.data.data // Backend returns { success, message, data }
   },
 
   getMe: async () => {
-    try {
-      const response = await api.get('/auth/me')
-      return response
-    } catch (error) {
-      console.error('AuthService.getMe - error:', error)
-      throw error
-    }
+    const response = await api.get('/auth/me')
+    return response.data.data // Backend returns { success, message, data }
   },
 
   logout: async () => {
@@ -42,7 +23,7 @@ const authService = {
         await api.post('/auth/logout', { refreshToken })
       }
     } catch (error) {
-      console.error('AuthService.logout - error:', error)
+      console.error('Logout error:', error)
     } finally {
       localStorage.removeItem('token')
       localStorage.removeItem('refreshToken')
@@ -50,24 +31,13 @@ const authService = {
   },
 
   changePassword: async (passwordData) => {
-    try {
-      console.log('AuthService.changePassword - changing password')
-      const response = await api.post('/auth/change-password', passwordData)
-      return response
-    } catch (error) {
-      console.error('AuthService.changePassword - error:', error)
-      throw error
-    }
+    const response = await api.post('/auth/change-password', passwordData)
+    return response.data
   },
 
   refreshToken: async (refreshToken) => {
-    try {
-      const response = await api.post('/auth/refresh-token', { refreshToken })
-      return response
-    } catch (error) {
-      console.error('AuthService.refreshToken - error:', error)
-      throw error
-    }
+    const response = await api.post('/auth/refresh-token', { refreshToken })
+    return response.data.data // Backend returns { success, message, data }
   }
 }
 

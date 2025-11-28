@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import * as patientService from '../../services/patientService'
+import patientService from '../../services/patientService'
 
 // Async thunks
 export const getPatients = createAsyncThunk(
@@ -18,7 +18,7 @@ export const getPatientById = createAsyncThunk(
   'patients/getPatientById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await patientService.getPatientById(id)
+      const response = await patientService.getPatient(id)
       return response
     } catch (error) {
       return rejectWithValue(error.message)

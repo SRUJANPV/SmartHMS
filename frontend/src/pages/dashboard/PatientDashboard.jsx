@@ -21,8 +21,8 @@ import StatCard from '../../components/dashboard/StatCard'
 
 const PatientDashboard = () => {
   const { user } = useSelector((state) => state.auth)
-  const { appointments } = useSelector((state) => state.appointments)
-  const { bills } = useSelector((state) => state.billing)
+  const { appointments = [] } = useSelector((state) => state.appointments || {})
+  const { bills = [] } = useSelector((state) => state.billing || {})
 
   useEffect(() => {
     // Dispatch actions to fetch patient data

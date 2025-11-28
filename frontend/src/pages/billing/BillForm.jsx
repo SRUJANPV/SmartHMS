@@ -39,7 +39,7 @@ import { createBill, updateBill } from '../../redux/slices/billingSlice'
 const BillForm = ({ bill, onSuccess, onCancel }) => {
   const dispatch = useDispatch()
   const { enqueueSnackbar } = useSnackbar()
-  const { patients } = useSelector((state) => state.patients)
+  const { patients = [] } = useSelector((state) => state.patients || {})
 
   const [items, setItems] = useState([])
   const [selectedPatient, setSelectedPatient] = useState('')

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Grid,
   Paper,
@@ -6,7 +6,9 @@ import {
   Box,
   Card,
   CardContent,
-  LinearProgress
+  LinearProgress,
+  Skeleton,
+  CircularProgress
 } from '@mui/material'
 import {
   People as PeopleIcon,
@@ -18,85 +20,177 @@ import { useSelector } from 'react-redux'
 
 import StatCard from '../../components/dashboard/StatCard'
 import RecentActivity from '../../components/dashboard/RecentActivity'
+import { getDashboardStats, getRecentAppointments } from '../../services/api'
 
 const AdminDashboard = () => {
-  // const dispatch = useDispatch()
-  const { stats: patientStats } = useSelector((state) => state.patients)
-  const { stats: appointmentStats } = useSelector((state) => state.appointments)
-  const { stats: billingStats } = useSelector((state) => state.billing)
-  const { stats: inventoryStats } = useSelector((state) => state.inventory)
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    patients: {},
+    appointments: {},
+    billing: {},
+    inventory: {}
+  })
+  const [recentAppointments, setRecentAppointments] = useState([])
 
-  // Currently there are no patient/appointment/billing/inventory slices in the redux store
-  // so we don't dispatch any actions here. If these slices are later added, re-enable.
-  useEffect(() => {}, [])
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        const dashboardStats = await getDashboardStats()
+        setStats(dashboardStats)
+
+        const appointments = await getRecentAppointments(5)
+        setRecentAppointments(appointments)
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
 
   const statCards = [
     {
       title: 'Total Patients',
-      value: patientStats?.total || 0,
+      value: stats.patients?.totalPatients || 0,
       icon: <PeopleIcon />,
       color: '#1976d2',
-      change: '+12%'
+      change: `${stats.patients?.change || 0}%`,
+      loading
     },
     {
       title: "Today's Appointments",
-      value: appointmentStats?.today || 0,
+      value: stats.appointments?.todayAppointments || 0,
       icon: <CalendarIcon />,
       color: '#2e7d32',
-      change: '+5%'
+      change: '+5%',
+      loading
     },
     {
       title: 'Monthly Revenue',
-      value: `$${billingStats?.monthlyRevenue || 0}`,
+      value: `₹${(stats.billing?.monthlyRevenue || 0).toLocaleString('en-IN')}`,
       icon: <BillingIcon />,
       color: '#ed6c02',
-      change: '+18%'
+      change: '+18%',
+      loading
     },
     {
       title: 'Low Stock Items',
-      value: inventoryStats?.lowStockCount || 0,
+      value: stats.inventory?.lowStockItems || 0,
       icon: <InventoryIcon />,
       color: '#d32f2f',
-      change: '-3%'
+      change: '-3%',
+      loading
     }
   ]
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#1a237e' }}>
+    <Box>
+      <Box sx={{ mb: 5 }}>
+        <Typography 
+          variant="h4" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 700, 
+            color: 'text.primary',
+            fontSize: { xs: '1.75rem', md: '2.125rem' }
+          }}
+        >
           Admin Dashboard
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Welcome to SmartCare HMS Administration Panel
+        <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
+          Overview of your hospital management system
         </Typography>
       </Box>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={{ xs: 2, sm: 3, lg: 4 }} sx={{ mb: 5 }}>
         {statCards.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <StatCard {...stat} />
+          <Grid item xs={12} sm={6} lg={3} key={index}>
+            {loading ? (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 3,
+                  height: '100%'
+                }}
+              >
+                <Skeleton variant="text" width="60%" height={24} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="80%" height={32} />
+              </Paper>
+            ) : (
+              <StatCard {...stat} />
+            )}
           </Grid>
         ))}
       </Grid>
 
-      <Grid container spacing={3}>
-        {/* Recent Activity */}
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, height: '100%' }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-              Recent Activity
+      <Grid container spacing={{ xs: 2, sm: 3, lg: 4 }}>
+        {/* Recent Appointments */}
+        <Grid item xs={12} lg={8}>
+          <Paper 
+            elevation={0}
+            sx={{ 
+              p: { xs: 2, sm: 3, lg: 4 }, 
+              height: '100%',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 3
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 600,
+                mb: 3 
+              }}
+            >
+              Recent Appointments
             </Typography>
-            <RecentActivity />
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : recentAppointments.length > 0 ? (
+              <RecentActivity items={recentAppointments.map((apt) => ({
+                id: apt.id,
+                title: `${apt.patientId ? `Patient ${apt.patientId}` : 'Unknown'} - ${apt.type || 'Appointment'}`,
+                time: new Date(apt.appointmentDate).toLocaleDateString(),
+                status: apt.status
+              }))} />
+            ) : (
+              <Typography variant="body2" color="text.secondary">No recent appointments</Typography>
+            )}
           </Paper>
         </Grid>
 
         {/* System Status */}
-        <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+        <Grid item xs={12} lg={4}>
+          <Card 
+            elevation={0}
+            sx={{ 
+              height: '100%',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 3
+            }}
+          >
+            <CardContent sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
+              <Typography 
+                variant="h6" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 600,
+                  mb: 3 
+                }}
+              >
                 System Status
               </Typography>
               

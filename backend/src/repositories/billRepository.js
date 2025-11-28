@@ -138,7 +138,7 @@ class BillRepository {
         startDate = new Date(date.getFullYear(), date.getMonth(), 1);
     }
 
-    const result = await Bill.sum('total', {
+    const result = await Bill.sum('totalAmount', {
       where: {
         status: 'paid',
         createdAt: { [Op.gte]: startDate }
@@ -157,7 +157,7 @@ class BillRepository {
       attributes: [
         [Sequelize.fn('YEAR', Sequelize.col('createdAt')), 'year'],
         [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'month'],
-        [Sequelize.fn('SUM', Sequelize.col('total')), 'revenue']
+        [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'revenue']
       ],
       where: { status: 'paid' },
       group: ['year', 'month'],

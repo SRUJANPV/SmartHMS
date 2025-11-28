@@ -35,7 +35,7 @@ const Inventory = () => {
   const dispatch = useDispatch()
   const { enqueueSnackbar } = useSnackbar()
   
-  const { items, stats, lowStockItems, isLoading } = useSelector((state) => state.inventory)
+  const { inventory = [], stats = {}, lowStockItems = [], isLoading = false } = useSelector((state) => state.inventory || {})
   
   const [openForm, setOpenForm] = useState(false)
   const [openStockForm, setOpenStockForm] = useState(false)
@@ -59,7 +59,7 @@ const Inventory = () => {
     other: { color: 'default', label: 'Other' }
   }
 
-  const filteredItems = items.filter(item => {
+  const filteredItems = inventory.filter(item => {
     const categoryMatch = categoryFilter === 'all' || item.category === categoryFilter
     const stockMatch = stockFilter === 'all' || 
       (stockFilter === 'low' && item.currentStock <= item.minimumStock) ||

@@ -40,10 +40,10 @@ import { getInventoryStats } from '../../redux/slices/inventorySlice'
 const Analytics = () => {
   const dispatch = useDispatch()
   
-  const { stats: patientStats } = useSelector((state) => state.patients)
-  const { stats: appointmentStats } = useSelector((state) => state.appointments)
-  const { stats: billingStats } = useSelector((state) => state.billing)
-  const { stats: inventoryStats } = useSelector((state) => state.inventory)
+  const { stats: patientStats = {} } = useSelector((state) => state.patients || {})
+  const { stats: appointmentStats = {} } = useSelector((state) => state.appointments || {})
+  const { stats: billingStats = {} } = useSelector((state) => state.billing || {})
+  const { stats: inventoryStats = {} } = useSelector((state) => state.inventory || {})
 
   const [dateRange, setDateRange] = React.useState({
     start: dayjs().subtract(1, 'month'),

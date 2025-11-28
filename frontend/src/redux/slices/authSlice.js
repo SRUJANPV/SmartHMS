@@ -7,10 +7,10 @@ export const login = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await authService.login(email, password)
-      return response.data
+      return response
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Login failed'
+        error.response?.data?.message || error.message || 'Login failed'
       )
     }
   }
@@ -20,12 +20,9 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-      console.log('Register thunk - userData:', userData)
       const response = await authService.register(userData)
-      console.log('Register thunk - response:', response)
-      return response.data
+      return response
     } catch (error) {
-      console.error('Register thunk - error:', error)
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Registration failed'
       )
@@ -38,10 +35,10 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authService.getMe()
-      return response.data
+      return response
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Failed to get user data'
+        error.response?.data?.message || error.message || 'Failed to get user data'
       )
     }
   }
@@ -65,8 +62,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: null,
-    token: localStorage.getItem('token'),
-    refreshToken: localStorage.getItem('refreshToken'),
+    token: localStorage.getItem('token') || null,
+    refreshToken: localStorage.getItem('refreshToken') || null,
     isAuthenticated: false,
     isLoading: false,
     error: null

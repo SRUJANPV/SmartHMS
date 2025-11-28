@@ -1,15 +1,12 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const userRepository = require('../repositories/userRepository');
-const refreshTokenRepository = require('../repositories/refreshTokenRepository');
-const { Role } = require('../models');
-const { generatePatientId } = require('../utils/helpers');
+const { User, Role, RefreshToken } = require('../models');
 
 class AuthService {
   async registerUser(userData) {
     try {
       // Check if user already exists
-      const existingUser = await userRepository.findByEmail(userData.email);
+      const existingUser = await User.findOne({ where: { email: userData.email } });
       if (existingUser) {
         throw new Error('User with this email already exists');
       }
@@ -25,30 +22,36 @@ class AuthService {
       }
 
       if (!roleId) {
-        throw new Error('Role is required');
+        // Default to Patient role
+        const patientRole = await Role.findOne({ where: { name: 'Patient' } });
+        roleId = patientRole.id;
       }
 
-      // Prepare user data without the role field
-      const createData = {
-        ...userData,
-        roleId,
-        role: undefined // Remove the role field
-      };
-
-      // Create user
-      const user = await userRepository.create(createData);
+      // Create user (model hook will hash password automatically)
+      const user = await User.create({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,  // Don't hash - model hook will do it
+        phone: userData.phone,
+        roleId
+      });
 
       // Generate tokens
       const tokens = this.generateTokens(user.id);
 
       // Store refresh token
-      await refreshTokenRepository.create({
+      await RefreshToken.create({
         token: tokens.refreshToken,
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
       });
 
-      const userWithRole = await userRepository.findByIdWithRole(user.id);
+      // Get user with role
+      const userWithRole = await User.findByPk(user.id, {
+        include: [{ model: Role, as: 'role', attributes: ['id', 'name', 'permissions'] }],
+        attributes: { exclude: ['password'] }
+      });
 
       return {
         user: userWithRole,
@@ -62,7 +65,11 @@ class AuthService {
   async loginUser(email, password) {
     try {
       // Find user with role
-      const user = await userRepository.findByEmailWithRole(email);
+      const user = await User.findOne({
+        where: { email },
+        include: [{ model: Role, as: 'role', attributes: ['id', 'name', 'permissions'] }]
+      });
+
       if (!user) {
         throw new Error('Invalid email or password');
       }
@@ -72,30 +79,31 @@ class AuthService {
         throw new Error('Account is deactivated. Please contact administrator.');
       }
 
-      // Verify password
+      // Verify password using model method
       const isPasswordValid = await user.correctPassword(password, user.password);
       if (!isPasswordValid) {
         throw new Error('Invalid email or password');
       }
 
       // Update last login
-      await userRepository.update(user.id, { lastLogin: new Date() });
+      await user.update({ lastLogin: new Date() });
 
       // Generate tokens
       const tokens = this.generateTokens(user.id);
 
       // Store refresh token
-      await refreshTokenRepository.create({
+      await RefreshToken.create({
         token: tokens.refreshToken,
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       });
 
       // Remove password from response
-      user.password = undefined;
+      const userResponse = user.toJSON();
+      delete userResponse.password;
 
       return {
-        user,
+        user: userResponse,
         ...tokens
       };
     } catch (error) {
@@ -113,13 +121,17 @@ class AuthService {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
       // Check if refresh token exists in database
-      const storedToken = await refreshTokenRepository.findByToken(refreshToken);
+      const storedToken = await RefreshToken.findOne({ where: { token: refreshToken } });
       if (!storedToken || storedToken.expiresAt < new Date()) {
         throw new Error('Invalid or expired refresh token');
       }
 
-      // Get user
-      const user = await userRepository.findByIdWithRole(decoded.id);
+      // Get user with role
+      const user = await User.findByPk(decoded.id, {
+        include: [{ model: Role, as: 'role', attributes: ['id', 'name', 'permissions'] }],
+        attributes: { exclude: ['password'] }
+      });
+
       if (!user || !user.isActive) {
         throw new Error('User not found or inactive');
       }
@@ -128,15 +140,12 @@ class AuthService {
       const tokens = this.generateTokens(user.id);
 
       // Delete old refresh token and store new one
-      await refreshTokenRepository.deleteByToken(refreshToken);
-      await refreshTokenRepository.create({
+      await RefreshToken.destroy({ where: { token: refreshToken } });
+      await RefreshToken.create({
         token: tokens.refreshToken,
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       });
-
-      // Remove password from response
-      user.password = undefined;
 
       return {
         user,
@@ -150,11 +159,15 @@ class AuthService {
   async logoutUser(refreshToken, userId) {
     try {
       if (refreshToken) {
-        await refreshTokenRepository.deleteByToken(refreshToken);
+        await RefreshToken.destroy({ where: { token: refreshToken } });
       }
-      
-      // Also delete all expired tokens for this user
-      await refreshTokenRepository.deleteExpiredTokens(userId);
+      // Delete all expired tokens for this user
+      await RefreshToken.destroy({
+        where: {
+          userId,
+          expiresAt: { [require('sequelize').Op.lt]: new Date() }
+        }
+      });
     } catch (error) {
       throw new Error(`Logout failed: ${error.message}`);
     }
@@ -162,51 +175,33 @@ class AuthService {
 
   async getUserProfile(userId) {
     try {
-      const user = await userRepository.findByIdWithRole(userId);
+      const user = await User.findByPk(userId, {
+        include: [{ model: Role, as: 'role', attributes: ['id', 'name', 'permissions'] }],
+        attributes: { exclude: ['password'] }
+      });
+
       if (!user) {
         throw new Error('User not found');
       }
 
-      user.password = undefined;
       return user;
     } catch (error) {
-      throw new Error(`Profile fetch failed: ${error.message}`);
-    }
-  }
-
-  async changeUserPassword(userId, currentPassword, newPassword) {
-    try {
-      const user = await userRepository.findById(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Verify current password
-      const isCurrentPasswordValid = await user.correctPassword(currentPassword, user.password);
-      if (!isCurrentPasswordValid) {
-        throw new Error('Current password is incorrect');
-      }
-
-      // Update password
-      await userRepository.update(userId, { password: newPassword });
-
-      return true;
-    } catch (error) {
-      throw new Error(`Password change failed: ${error.message}`);
+      throw new Error(`Get profile failed: ${error.message}`);
     }
   }
 
   generateTokens(userId) {
     const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN
+      expiresIn: process.env.JWT_EXPIRES_IN || '1d'
     });
 
     const refreshToken = jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
     });
 
     return { token, refreshToken };
   }
 }
+
 
 module.exports = new AuthService();

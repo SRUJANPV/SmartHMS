@@ -22,6 +22,25 @@ const router = express.Router();
 // All routes require authentication
 router.use(auth);
 
+// GET /stats, /low-stock, /expiring routes MUST come before /:id route
+router.get(
+  '/stats',
+  authorize('Admin', 'Doctor', 'Staff'),
+  getInventoryStats
+);
+
+router.get(
+  '/low-stock',
+  authorize('Admin', 'Doctor', 'Staff'),
+  getLowStockItems
+);
+
+router.get(
+  '/expiring',
+  authorize('Admin', 'Doctor', 'Staff'),
+  getExpiringItems
+);
+
 // Inventory routes
 router.post(
   '/',
@@ -35,24 +54,6 @@ router.get(
   '/',
   hasPermission('view_inventory'),
   getAllInventory
-);
-
-router.get(
-  '/stats',
-  authorize('Admin', 'Staff'),
-  getInventoryStats
-);
-
-router.get(
-  '/low-stock',
-  authorize('Admin', 'Staff'),
-  getLowStockItems
-);
-
-router.get(
-  '/expiring',
-  authorize('Admin', 'Staff'),
-  getExpiringItems
 );
 
 router.get(

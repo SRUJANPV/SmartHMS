@@ -29,8 +29,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Logging
@@ -137,18 +139,32 @@ const ensureDefaultRoles = async () => {
 
 const startServer = async () => {
   try {
+    // Test database connection
     await testConnection();
+    
+    // Define associations first
     defineAssociations();
-    await sequelize.sync();
+    
+    // Sync all models (creates tables if they don't exist)
+    await sequelize.sync({ alter: false });
+    console.log('✅ Database tables synced');
+    
+    // Ensure default roles exist
     await ensureDefaultRoles();
+    console.log('✅ Default roles ensured');
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+      console.log('');
+      console.log('🚀 SmartCare HMS Backend Server Started');
+      console.log(`📡 Server running on port ${PORT}`);
+      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`📊 Database: ${process.env.DB_NAME}`);
+      console.log('');
     });
   } catch (error) {
-    logger.error('Failed to initialize database:', error);
+    logger.error('Failed to start server:', error);
+    console.error('❌ Server startup failed:', error.message);
     process.exit(1);
   }
 };

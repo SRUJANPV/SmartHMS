@@ -36,7 +36,7 @@ const Patients = () => {
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
   
-  const { patients, isLoading, pagination } = useSelector((state) => state.patients)
+  const { patients = [], isLoading = false, pagination = {} } = useSelector((state) => state.patients || {})
   
   const [searchTerm, setSearchTerm] = useState('')
   const [openForm, setOpenForm] = useState(false)
@@ -181,21 +181,57 @@ const Patients = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">
-          Patient Management
-        </Typography>
+      <Box 
+        sx={{ 
+          mb: 4,
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 2
+        }}
+      >
+        <Box>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 700,
+              color: 'text.primary',
+              mb: 0.5
+            }}
+          >
+            Patient Management
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage patient records and information
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setOpenForm(true)}
+          size="large"
+          sx={{ 
+            minWidth: { sm: 160 },
+            height: 48,
+            boxShadow: '0px 4px 12px rgba(25, 118, 210, 0.3)'
+          }}
         >
           Add Patient
         </Button>
       </Box>
 
       {/* Search Bar */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, sm: 3 },
+          mb: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 3
+        }}
+      >
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={6}>
             <TextField
@@ -219,7 +255,16 @@ const Patients = () => {
       </Paper>
 
       {/* Data Grid */}
-      <Paper sx={{ width: '100%' }}>
+      <Paper 
+        elevation={0}
+        sx={{ 
+          width: '100%',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 3,
+          overflow: 'hidden'
+        }}
+      >
         <DataGrid
           rows={patients}
           columns={columns}

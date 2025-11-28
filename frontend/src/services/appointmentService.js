@@ -4,22 +4,22 @@ const appointmentService = {
   // Appointment CRUD
   getAppointments: async (params = {}) => {
     const response = await api.get('/appointments', { params })
-    return response.data
+    return response.data.data
   },
 
   getAppointment: async (id) => {
     const response = await api.get(`/appointments/${id}`)
-    return response.data
+    return response.data.data
   },
 
   createAppointment: async (appointmentData) => {
     const response = await api.post('/appointments', appointmentData)
-    return response.data
+    return response.data.data
   },
 
   updateAppointment: async (id, appointmentData) => {
     const response = await api.put(`/appointments/${id}`, appointmentData)
-    return response.data
+    return response.data.data
   },
 
   updateAppointmentStatus: async (id, status, notes = '') => {
@@ -27,13 +27,13 @@ const appointmentService = {
       status,
       notes
     })
-    return response.data
+    return response.data.data
   },
 
   // Appointment Stats
   getAppointmentStats: async () => {
     const response = await api.get('/appointments/stats')
-    return response.data
+    return response.data.data
   },
 
   // Doctor Schedule
@@ -41,7 +41,7 @@ const appointmentService = {
     const response = await api.get(`/appointments/doctor/${doctorId}/schedule`, {
       params: { date }
     })
-    return response.data
+    return response.data.data
   },
 
   // Available Slots
@@ -49,7 +49,7 @@ const appointmentService = {
     const response = await api.get(`/appointments/doctor/${doctorId}/available-slots`, {
       params: { date }
     })
-    return response.data
+    return response.data.data
   },
 
   // Patient Appointments
@@ -57,7 +57,7 @@ const appointmentService = {
     const response = await api.get('/appointments', {
       params: { patientId }
     })
-    return response.data
+    return response.data.data
   },
 
   // Doctor Appointments
@@ -65,7 +65,7 @@ const appointmentService = {
     const response = await api.get('/appointments', {
       params: { doctorId, ...params }
     })
-    return response.data
+    return response.data.data
   }
 }
 

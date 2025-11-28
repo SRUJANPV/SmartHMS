@@ -24,6 +24,13 @@ const router = express.Router();
 // All routes require authentication
 router.use(auth);
 
+// Get billing stats (must come BEFORE :id routes)
+router.get(
+  '/stats',
+  authorize('Admin', 'Doctor', 'Staff'),
+  getBillingStats
+);
+
 // Billing routes
 router.post(
   '/',
@@ -37,12 +44,6 @@ router.get(
   '/',
   hasPermission('view_bills'),
   getAllBills
-);
-
-router.get(
-  '/stats',
-  authorize('Admin', 'Doctor', 'Staff'),
-  getBillingStats
 );
 
 router.get(

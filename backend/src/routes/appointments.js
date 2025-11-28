@@ -16,6 +16,14 @@ const router = express.Router();
 // All routes require authentication
 router.use(auth);
 
+// GET /stats route MUST come BEFORE /:id route to avoid matching issues
+router.get(
+  '/stats',
+  authorize('Admin', 'Doctor', 'Staff'),
+  hasPermission('view_appointments'),
+  getAppointmentStats
+);
+
 // Appointment management routes
 router.post(
   '/',
@@ -29,13 +37,6 @@ router.get(
   authorize('Admin', 'Doctor', 'Staff'),
   hasPermission('view_appointments'),
   getAllAppointments
-);
-
-router.get(
-  '/stats',
-  authorize('Admin', 'Doctor', 'Staff'),
-  hasPermission('view_appointments'),
-  getAppointmentStats
 );
 
 router.get(

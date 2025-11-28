@@ -1,14 +1,12 @@
 import React from 'react'
-import { ListItem, ListItemIcon, ListItemText, Collapse, List } from '@mui/material'
+import { ListItemButton, ListItemIcon, ListItemText, List } from '@mui/material'
 import {
   Dashboard,
   People,
   CalendarToday,
   Receipt,
   Inventory,
-  Analytics,
-  ExpandLess,
-  ExpandMore
+  Analytics
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -17,12 +15,6 @@ const SidebarItems = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useSelector((state) => state.auth)
-
-  const [open, setOpen] = React.useState(true)
-
-  const handleClick = () => {
-    setOpen(!open)
-  }
 
   const menuItems = [
     {
@@ -68,35 +60,55 @@ const SidebarItems = () => {
   )
 
   return (
-    <List>
+    <List sx={{ px: 1 }}>
       {filteredMenuItems.map((item) => (
-        <ListItem
-          button
+        <ListItemButton
           key={item.text}
           onClick={() => navigate(item.path)}
           selected={location.pathname === item.path}
           sx={{
+            mb: 0.5,
+            borderRadius: 2,
+            transition: 'all 0.2s ease',
             '&.Mui-selected': {
               backgroundColor: 'primary.main',
               color: 'white',
+              boxShadow: '0px 4px 12px rgba(25, 118, 210, 0.3)',
               '& .MuiListItemIcon-root': {
                 color: 'white'
+              },
+              '&:hover': {
+                backgroundColor: 'primary.dark'
               }
             },
-            '&.Mui-selected:hover': {
-              backgroundColor: 'primary.dark'
+            '&:hover': {
+              backgroundColor: 'action.hover',
+              transform: 'translateX(4px)'
+            },
+            '&:not(.Mui-selected)': {
+              '&:hover .MuiListItemIcon-root': {
+                color: 'primary.main'
+              }
             }
           }}
         >
           <ListItemIcon
             sx={{
-              color: location.pathname === item.path ? 'white' : 'inherit'
+              minWidth: 40,
+              color: location.pathname === item.path ? 'white' : 'text.secondary',
+              transition: 'color 0.2s ease'
             }}
           >
             {item.icon}
           </ListItemIcon>
-          <ListItemText primary={item.text} />
-        </ListItem>
+          <ListItemText 
+            primary={item.text}
+            primaryTypographyProps={{
+              fontWeight: location.pathname === item.path ? 600 : 500,
+              fontSize: '0.95rem'
+            }}
+          />
+        </ListItemButton>
       ))}
     </List>
   )

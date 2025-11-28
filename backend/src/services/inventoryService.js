@@ -122,11 +122,11 @@ class InventoryService {
       const totalItems = await Inventory.count();
       const lowStockItems = await Inventory.count({
         where: {
-          quantity: { [require('../models').Sequelize.Op.lte]: require('../models').Sequelize.col('minStockLevel') }
+          currentStock: { [Op.lte]: Sequelize.col('minimumStock') }
         }
       });
       const totalValue = await Inventory.sum('unitPrice', {
-        where: { quantity: { [Op.gt]: 0 } }
+        where: { currentStock: { [Op.gt]: 0 } }
       });
 
       return {

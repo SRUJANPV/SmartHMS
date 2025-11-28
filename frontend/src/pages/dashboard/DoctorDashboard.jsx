@@ -20,7 +20,7 @@ import RecentActivity from '../../components/dashboard/RecentActivity'
 
 const DoctorDashboard = () => {
   const { user } = useSelector((state) => state.auth)
-  const { appointments, stats: appointmentStats } = useSelector((state) => state.appointments)
+  const { appointments = [], stats: appointmentStats = {} } = useSelector((state) => state.appointments || {})
 
   useEffect(() => {
     // Dispatch actions to fetch doctor's data

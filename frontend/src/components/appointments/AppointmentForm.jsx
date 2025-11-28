@@ -10,12 +10,15 @@ import {
   Grid,
   FormControl,
   InputLabel,
-  Select
+  Select,
+  CircularProgress,
+  Box
 } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
+import { getStaffList } from '../../redux/slices/staffSlice'
 
 const appointmentSchema = yup.object({
   patientId: yup.string().required('Patient is required'),
@@ -29,13 +32,7 @@ const appointmentSchema = yup.object({
 const AppointmentForm = ({ open, onClose, appointment = null }) => {
   const dispatch = useDispatch()
   const { patients = [] } = useSelector((state) => state.patients) || {}
-  
-  // Mock doctors list since doctors slice doesn't exist yet
-  const doctors = [
-    { id: 1, firstName: 'John', lastName: 'Smith' },
-    { id: 2, firstName: 'Sarah', lastName: 'Johnson' },
-    { id: 3, firstName: 'Michael', lastName: 'Brown' }
-  ]
+  const { doctors = [], isLoading: staffLoading } = useSelector((state) => state.staff) || {}
 
   const {
     control,
@@ -53,6 +50,12 @@ const AppointmentForm = ({ open, onClose, appointment = null }) => {
       notes: ''
     }
   })
+
+  useEffect(() => {
+    if (open) {
+      dispatch(getStaffList())
+    }
+  }, [open, dispatch])
 
   useEffect(() => {
     if (appointment) {
@@ -100,140 +103,146 @@ const AppointmentForm = ({ open, onClose, appointment = null }) => {
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="patientId"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label="Patient"
-                    error={!!errors.patientId}
-                    helperText={errors.patientId?.message}
-                  >
-                    {patients?.map((patient) => (
-                      <MenuItem key={patient.id} value={patient.id}>
-                        {patient.firstName} {patient.lastName} (ID: {patient.patientId})
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-            </Grid>
+          {staffLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Controller
+                  name="patientId"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      fullWidth
+                      label="Patient"
+                      error={!!errors.patientId}
+                      helperText={errors.patientId?.message}
+                    >
+                      {patients?.map((patient) => (
+                        <MenuItem key={patient.id} value={patient.id}>
+                          {patient.firstName} {patient.lastName} (ID: {patient.patientId})
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+              </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="doctorId"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label="Doctor"
-                    error={!!errors.doctorId}
-                    helperText={errors.doctorId?.message}
-                  >
-                    {doctors?.map((doctor) => (
-                      <MenuItem key={doctor.id} value={doctor.id}>
-                        Dr. {doctor.firstName} {doctor.lastName}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-            </Grid>
+              <Grid item xs={12} md={6}>
+                <Controller
+                  name="doctorId"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      fullWidth
+                      label="Doctor"
+                      error={!!errors.doctorId}
+                      helperText={errors.doctorId?.message}
+                    >
+                      {doctors?.map((doctor) => (
+                        <MenuItem key={doctor.id} value={doctor.id}>
+                          Dr. {doctor.firstName} {doctor.lastName}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+              </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="appointmentDate"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    type="date"
-                    label="Appointment Date"
-                    InputLabelProps={{ shrink: true }}
-                    error={!!errors.appointmentDate}
-                    helperText={errors.appointmentDate?.message}
-                  />
-                )}
-              />
-            </Grid>
+              <Grid item xs={12} md={6}>
+                <Controller
+                  name="appointmentDate"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      type="date"
+                      label="Appointment Date"
+                      InputLabelProps={{ shrink: true }}
+                      error={!!errors.appointmentDate}
+                      helperText={errors.appointmentDate?.message}
+                    />
+                  )}
+                />
+              </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="appointmentTime"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label="Appointment Time"
-                    error={!!errors.appointmentTime}
-                    helperText={errors.appointmentTime?.message}
-                  >
-                    {timeSlots.map((time) => (
-                      <MenuItem key={time} value={time}>
-                        {time}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-            </Grid>
+              <Grid item xs={12} md={6}>
+                <Controller
+                  name="appointmentTime"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      fullWidth
+                      label="Appointment Time"
+                      error={!!errors.appointmentTime}
+                      helperText={errors.appointmentTime?.message}
+                    >
+                      {timeSlots.map((time) => (
+                        <MenuItem key={time} value={time}>
+                          {time}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+              </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label="Appointment Type"
-                    error={!!errors.type}
-                    helperText={errors.type?.message}
-                  >
-                    {appointmentTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-            </Grid>
+              <Grid item xs={12} md={6}>
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      fullWidth
+                      label="Appointment Type"
+                      error={!!errors.type}
+                      helperText={errors.type?.message}
+                    >
+                      {appointmentTypes.map((type) => (
+                        <MenuItem key={type} value={type}>
+                          {type}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+              </Grid>
 
-            <Grid item xs={12}>
-              <Controller
-                name="notes"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    multiline
-                    rows={3}
-                    label="Notes"
-                    placeholder="Additional notes or special instructions"
-                    error={!!errors.notes}
-                    helperText={errors.notes?.message}
-                  />
-                )}
-              />
+              <Grid item xs={12}>
+                <Controller
+                  name="notes"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      multiline
+                      rows={3}
+                      label="Notes"
+                      placeholder="Additional notes or special instructions"
+                      error={!!errors.notes}
+                      helperText={errors.notes?.message}
+                    />
+                  )}
+                />
+              </Grid>
             </Grid>
-          </Grid>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" disabled={staffLoading}>
             {appointment ? 'Update' : 'Schedule'} Appointment
           </Button>
         </DialogActions>
