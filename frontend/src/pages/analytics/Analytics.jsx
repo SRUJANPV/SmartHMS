@@ -54,11 +54,11 @@ const Analytics = () => {
   useEffect(() => {
     dispatch(getPatientStats())
     dispatch(getAppointmentStats())
-    dispatch(getBillingStats(period))
+    dispatch(getBillingStats())
     dispatch(getInventoryStats())
-  }, [dispatch, period])
+  }, [dispatch])
 
-  // Sample data for charts (replace with actual data from API)
+  // Sample data for charts
   const revenueData = [
     { month: 'Jan', revenue: 45000, patients: 120 },
     { month: 'Feb', revenue: 52000, patients: 145 },
@@ -96,14 +96,14 @@ const Analytics = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
           Analytics & Reports
         </Typography>
         
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Period</InputLabel>
             <Select
@@ -176,7 +176,7 @@ const Analytics = () => {
                 Appointments
               </Typography>
               <Typography variant="h4" component="div">
-                {appointmentStats?.thisMonth || 0}
+                {appointmentStats?.total || 0}
               </Typography>
               <Typography variant="body2" color="success.main">
                 +15.3% from last month
@@ -195,7 +195,7 @@ const Analytics = () => {
                 ${inventoryStats?.totalValue?.toLocaleString() || '0'}
               </Typography>
               <Typography variant="body2" color="warning.main">
-                {inventoryStats?.lowStockCount || 0} low stock items
+                {inventoryStats?.lowStock || 0} low stock items
               </Typography>
             </CardContent>
           </Card>
@@ -207,7 +207,7 @@ const Analytics = () => {
         {/* Revenue vs Patients Chart */}
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3, height: 400 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Revenue & Patient Growth
             </Typography>
             <ResponsiveContainer width="100%" height="90%">
@@ -228,7 +228,7 @@ const Analytics = () => {
         {/* Patient Demographics */}
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3, height: 400 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Patient Age Distribution
             </Typography>
             <ResponsiveContainer width="100%" height="90%">
@@ -256,7 +256,7 @@ const Analytics = () => {
         {/* Appointment Trends */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, height: 350 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Weekly Appointments
             </Typography>
             <ResponsiveContainer width="100%" height="85%">
@@ -266,8 +266,8 @@ const Analytics = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="scheduled" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="completed" stroke="#82ca9d" strokeWidth={2} />
+                <Line type="monotone" dataKey="scheduled" stroke="#8884d8" strokeWidth={2} name="Scheduled" />
+                <Line type="monotone" dataKey="completed" stroke="#82ca9d" strokeWidth={2} name="Completed" />
               </LineChart>
             </ResponsiveContainer>
           </Paper>
@@ -276,7 +276,7 @@ const Analytics = () => {
         {/* Inventory Distribution */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, height: 350 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Inventory by Category
             </Typography>
             <ResponsiveContainer width="100%" height="85%">
@@ -304,7 +304,7 @@ const Analytics = () => {
         {/* Doctor Performance */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3, height: 400 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Doctor Performance Metrics
             </Typography>
             <ResponsiveContainer width="100%" height="85%">
